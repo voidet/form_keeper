@@ -55,8 +55,7 @@ class FormKeeperHelper extends FormHelper {
 		if (empty($cachedName[$name])) {
 			$hashKey = Security::hash($name.$salt, null, false);
 			$cachedName[$hashKey] = $name;
-			$cachedName = array_flip($cachedName);
-			Cache::write(Security::hash('fieldMaps'.$salt, null, false), $cachedName, $cacheKey);
+			Cache::write(Security::hash('fieldMaps'.$salt, null, false), array_flip($cachedName), $cacheKey);
 		} else {
 			$hashKey = $cachedName[$name];
 		}

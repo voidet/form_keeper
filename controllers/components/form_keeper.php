@@ -15,22 +15,27 @@ class FormKeeperComponent extends Dispatcher {
 		}
 
 		$this->settings = array_merge($settings, $default);
-
-		$this->stitchFields($_POST);
+		debug($_POST);
+		$_POST = $this->stitchFields($_POST);
 		debug(parent::parseParams($this->getUrl()));
+		debug($controller->data);
 	}
 
 	public function stitchFields(&$data) {
 		extract($this->settings);
 
-		$cachedName = Cache::read(Security::hash('fieldMaps'.$salt, null, false), $cacheKey);
-		if (!empty($data)) {
-			foreach ($data as $hash => $field) {
-				if (in_array($hash, $cachedName)) {
-
+		$cachedNames = Cache::read(Security::hash('fieldMaps'.$salt, null, false), $cacheKey);
+		if (!empty($data) && !empty($cachedNames)) {
+			$cachedNames = array_flip($cachedNames);
+			$fields = array();
+			foreach ($data as $hash => &$field) {
+				if (in_array($hash, array_keys($cachedNames))) {
+					$fields[$cachedNames[$hash]] = $field;
 				}
 			}
 		}
+
+		return $fields;
 
 	}
 
