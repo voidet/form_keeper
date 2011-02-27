@@ -2,7 +2,7 @@
 
 class FormKeeperComponent extends Dispatcher {
 
-	public function startup(&$controller) {
+	public function initialize(&$controller, $settings = array()) {
 		$default = array(
 			'salt' => Configure::read('Security.salt'),
 			'cacheKey' => 'default',
@@ -15,25 +15,25 @@ class FormKeeperComponent extends Dispatcher {
 		}
 
 		$this->settings = array_merge($settings, $default);
-		debug($this->stitchFields($_POST));
+		if (!empty($_POST)) {
+			$controller->data = $this->stitchFields($_POST);
+		}
 	}
 
 	public function stitchFields(&$data) {
 		extract($this->settings);
-		$fields = array();
 		$cachedNames = Cache::read(Security::hash('fieldMaps'.$salt, null, false), $cacheKey);
-
+		$reStitched = array();
 		if (!empty($data) && !empty($cachedNames)) {
 			$cachedNames = array_flip($cachedNames);
 			foreach ($data as $hash => &$field) {
 				if (in_array($hash, array_keys($cachedNames))) {
-					$fields[$cachedNames[$hash]] = $field;
-					$this->addFieldToData($cachedNames[$hash], $data, $hash);
+					$reStitched = array_merge_recursive($this->addFieldToData($cachedNames[$hash], $field), $reStitched);
+					unset($data[$hash]);
 				}
 			}
 		}
-
-		return $fields;
+		return $reStitched;
 	}
 
 	public function wormholeArray($levels = array(), $value = '', &$data = array()) {
@@ -49,12 +49,10 @@ class FormKeeperComponent extends Dispatcher {
 		return $data;
 	}
 
-	public function addFieldToData($field = '', &$data, $hash) {
-		$field = 'data[User][ME][mew]';
+	public function addFieldToData($field = '', &$data) {
 		preg_match_all('/\[(.*?)\]/', $field, $levels);
-		$data = $this->wormholeArray($levels[1], $data[$hash]);
-
-
+		$field = $this->wormholeArray($levels[1], $data);
+		return $field;
 	}
 
 }
