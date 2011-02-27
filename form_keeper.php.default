@@ -1,0 +1,6 @@
+<?php
+
+$config['FormKeeper'] = array(
+	'salt' => '5yYCOmfYytBFKITfXorGiylRbpr9FLZXk7YJ62dn',
+	'cacheKey' => 'default'
+);
