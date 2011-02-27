@@ -57,7 +57,9 @@ class FormKeeperHelper extends FormHelper {
 			$cachedName[$hashKey] = $name;
 			Cache::write(Security::hash('fieldMaps'.$salt, null, false), array_flip($cachedName), $cacheKey);
 			$name = $hashKey;
-			$options['id'] = $name;
+			if (empty($options['id'])) {
+				$options['id'] = $name;
+			}
 		}
 
 		if (is_array($options)) {
