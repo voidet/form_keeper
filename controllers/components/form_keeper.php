@@ -16,7 +16,10 @@ class FormKeeperComponent extends Dispatcher {
 
 		$this->settings = array_merge($settings, $default);
 		if (!empty($_POST)) {
-			$controller->data = $this->stitchFields($_POST);
+			if (empty($controller->data)) {
+				$controller->data = array();
+			}
+			$controller->data = array_merge_recursive($controller->data, $this->stitchFields($_POST));
 		}
 	}
 
