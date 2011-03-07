@@ -5,7 +5,6 @@ class FormKeeperHelper extends FormHelper {
 	public $settings = array();
 
 	public function beforeRender() {
-
 		$default = array(
 			'salt' => Configure::read('Security.salt'),
 			'cacheKey' => 'default',
@@ -18,10 +17,17 @@ class FormKeeperHelper extends FormHelper {
 		}
 
 		$this->settings = array_merge($settings, $default);
-
 	}
 
 	public function _name($options = array(), $field = null, $key = 'name') {
+		if (Configure::read('Cache.disable') == true) {
+			return parent::_name($options, $field, $key);
+		} else {
+			return $this->hashFields($options, $field, $key);
+		}
+	}
+
+	public function hashFields($options, $field, $key) {
 		extract($this->settings);
 		$view =& ClassRegistry::getObject('view');
 		if ($options === null) {
